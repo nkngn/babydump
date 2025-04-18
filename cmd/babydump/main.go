@@ -150,18 +150,18 @@ func (h *IPPacketPayload) UnmarshalBinary(data []byte) error {
 }
 
 type EthernetFrame struct {
-	DestinationAddress MacAddress
-	SourceAddress      MacAddress
-	EtherType          EtherType
-	ReceivedAt         time.Time
+	DstMac     MacAddress
+	SrcMac     MacAddress
+	EtherType  EtherType
+	ReceivedAt time.Time
 
 	IPPacket IPPacket
 }
 
 func (e *EthernetFrame) UnmarshalBinary(data []byte) error {
-	e.DestinationAddress = data[0:6]
-	e.SourceAddress = make([]byte, 6)
-	copy(e.SourceAddress, data[6:12])
+	e.DstMac = data[0:6]
+	e.SrcMac = make([]byte, 6)
+	copy(e.SrcMac, data[6:12])
 	e.EtherType = EtherType(binary.BigEndian.Uint16(data[12:14]))
 
 	if e.EtherType == 0x0800 {
@@ -184,8 +184,8 @@ func (e EthernetFrame) Print() {
 	s := fmt.Sprintf(
 		"%s %s > %s, ethertype %s (%#04x)",
 		e.ReceivedAt.Format("15:04:05.000000"),
-		e.DestinationAddress,
-		e.SourceAddress,
+		e.DstMac,
+		e.SrcMac,
 		e.EtherType.VerboseString(),
 		e.EtherType,
 	)
