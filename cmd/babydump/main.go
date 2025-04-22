@@ -7,6 +7,8 @@ import (
 	"net"
 	"syscall"
 	"time"
+
+	babydump "github.com/ngockhanhnguyen/babydump/packet"
 )
 
 func main() {
@@ -51,13 +53,22 @@ func main() {
 	data := make([]byte, iface.MTU+18)
 	for {
 		syscall.Recvfrom(fd, data, 0)
-		var ethFrame EthernetFrame
-		ethFrame.ReceivedAt = time.Now()
-		err := ethFrame.UnmarshalBinary(data)
-		if err != nil {
-			log.Fatal("decode error:", err)
-		}
-		ethFrame.Print()
+		fmt.Printf("%v\n", data)
+		packet := babydump.NewPacket(data, babydump.PackageMetadata{
+			Timestamp:      time.Now(),
+			InterfaceIndex: iface.Index,
+		})
+		// fmt.Printf("%d\n", len(packet.Layers()))
+		fmt.Printf("%s\n", packet.String())
+		break
+
+		// var ethFrame EthernetFrame
+		// ethFrame.ReceivedAt = time.Now()
+		// err := ethFrame.UnmarshalBinary(data)
+		// if err != nil {
+		// 	log.Fatal("decode error:", err)
+		// }
+		// ethFrame.Print()
 	}
 }
 
