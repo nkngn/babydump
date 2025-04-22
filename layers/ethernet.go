@@ -52,8 +52,11 @@ func (e *EthernetFrame) Decode(data []byte) error {
 	e.DstMac = net.HardwareAddr(data[0:6])
 	e.SrcMac = net.HardwareAddr(data[6:12])
 	e.EtherType = EtherType(binary.BigEndian.Uint16(data[12:14]))
-
 	e.Payload = data[14:]
 
 	return nil
+}
+
+func (e EthernetFrame) String() string {
+	return e.DstMac.String() + " -> " + e.SrcMac.String() + ", ethertype " + (e.EtherType.(EtherType)).VerboseString() + " :"
 }

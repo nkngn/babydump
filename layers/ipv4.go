@@ -2,6 +2,7 @@ package layers
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net"
 )
 
@@ -43,4 +44,8 @@ func (i *IPv4) Decode(data []byte) error {
 	i.Payload = data[headerLength:i.TotalLength]
 
 	return nil
+}
+
+func (i IPv4) String() string {
+	return fmt.Sprintf("%s > %s", i.SrcAddr, i.DstAddr)
 }

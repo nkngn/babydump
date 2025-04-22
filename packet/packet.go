@@ -49,8 +49,7 @@ func (p *Packet) decode() error {
 	for {
 		nextLayer := p.last.LayerType().GetNextLayer()
 		if nextLayer != nil {
-			println(nextLayer.LayerPayload())
-			nextLayer.Decode(nextLayer.LayerPayload())
+			nextLayer.Decode(p.last.LayerPayload())
 			p.layers = append(p.layers, nextLayer)
 			p.last = nextLayer
 		} else {
