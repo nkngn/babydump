@@ -1,6 +1,7 @@
 package babydump
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/ngockhanhnguyen/babydump/layers"
@@ -11,52 +12,58 @@ type PackageMetadata struct {
 	InterfaceIndex int
 }
 
-type Package interface {
-	Data() []byte
-	String() string
-	Layers() []layers.Layer
-	Metadata() PackageMetadata
-}
-
-type packet struct {
-	data   []byte
-	layers []layers.Layer
-
-	// last is the last layer added to the packet
+type Packet struct {
+	rawData  []byte
+	layers   []layers.Layer
 	last     layers.Layer
 	metadata PackageMetadata
 }
 
-func (p packet) Data() []byte {
-	return p.data
+func (p Packet) Data() []byte {
+	return p.rawData
 }
 
-func (p packet) String() string {
-	return ""
+func (p Packet) String() string {
+	str := ""
+	for _, layer := range p.layers {
+		str += fmt.Sprintf("%v", layer)
+	}
+	return str
 }
 
-func (p packet) Layers() []layers.Layer {
+func (p Packet) Layers() []layers.Layer {
 	return p.layers
 }
 
-func (p packet) Metadata() PackageMetadata {
+func (p Packet) Metadata() PackageMetadata {
 	return p.metadata
 }
 
-func (p packet) decode() error {
-	// decode each layer from outside -> inside
+func (p *Packet) decode() error {
+	ethernetFrm := &layers.EthernetFrame{}
 
-	// decode ethernet
+	ethernetFrm.Decode(p.rawData)
+	p.layers = append(p.layers, ethernetFrm)
+	p.last = ethernetFrm
 
-	// while get next decoder
-	// decode
+	for {
+		nextLayer := p.last.LayerType().GetNextLayer()
+		if nextLayer != nil {
+			println(nextLayer.LayerPayload())
+			nextLayer.Decode(nextLayer.LayerPayload())
+			p.layers = append(p.layers, nextLayer)
+			p.last = nextLayer
+		} else {
+			break
+		}
+	}
 
 	return nil
 }
 
-func NewPacket(data []byte, metadata PackageMetadata) packet {
-	p := packet{
-		data:     data,
+func NewPacket(data []byte, metadata PackageMetadata) Packet {
+	p := Packet{
+		rawData:  data,
 		metadata: metadata,
 	}
 
