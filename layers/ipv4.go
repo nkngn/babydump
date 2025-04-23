@@ -9,7 +9,14 @@ import (
 type IPv4Protocol uint8
 
 func (p IPv4Protocol) GetNextLayer() Layer {
-	return nil
+	switch p {
+	case 0x06:
+		return &TCP{}
+	// case 0x11:
+	// 	return &UDP{}
+	default:
+		return nil
+	}
 }
 
 type IPv4 struct {
