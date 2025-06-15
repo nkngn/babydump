@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ngockhanhnguyen/babydump/layers"
+	"github.com/nkngn/babydump/internal/layers"
 )
 
 type PackageMetadata struct {
